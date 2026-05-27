@@ -246,11 +246,56 @@ body.nav-open .scrim{display:block}
   body.sidebar-hidden .sidebar{transform:translateX(-100%)}
   body.sidebar-hidden .main{margin-left:0}
 }
+
+/* ── Sidebar arrow toggle (fixed, always visible) ── */
+.sb-arrow{
+  position:fixed;
+  left:calc(var(--sidebar-w) - 1px);
+  top:50%;
+  transform:translateY(-50%);
+  width:22px;
+  height:56px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-left:none;
+  border-radius:0 12px 12px 0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  z-index:50;
+  transition:left var(--t), background var(--t), color var(--t), box-shadow var(--t);
+  box-shadow:4px 0 12px -3px rgba(16,30,55,.13);
+}
+.sb-arrow:hover{
+  background:var(--blue-50);
+  width:26px;
+  box-shadow:4px 0 16px -2px rgba(37,99,235,.28);
+}
+.sb-arrow svg{
+  transition:transform .25s cubic-bezier(.4,0,.2,1);
+  color:var(--text-3);
+  flex-shrink:0;
+}
+.sb-arrow:hover svg{ color:var(--accent); }
+body.sidebar-hidden .sb-arrow{
+  left:0;
+}
+body.sidebar-hidden .sb-arrow svg{
+  transform:rotate(180deg);
+}
+@media(max-width:900px){
+  .sb-arrow{display:none!important}
+}
 </style>
 {% block head %}{% endblock %}
 </head>
 <body>
 <div class="scrim" onclick="document.body.classList.remove('nav-open')"></div>
+<!-- Sidebar arrow toggle -->
+<button class="sb-arrow" id="sb-arrow" onclick="toggleNav()" aria-label="Свернуть / развернуть меню">
+  <svg width="10" height="16" viewBox="0 0 10 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2L2 8l5 6"/></svg>
+</button>
 <div class="shell">
   <aside class="sidebar">
     <div class="brand">
@@ -300,7 +345,7 @@ body.nav-open .scrim{display:block}
 
   <div class="main">
     <header class="topbar">
-      <button class="burger" id="burger-btn" onclick="toggleNav()">☰</button>
+      <button class="burger" id="burger-btn" onclick="toggleNav()" title="Меню">☰</button>
       <div class="crumb">{% block crumb %}{% endblock %}</div>
       <div class="topbar-spacer"></div>
       <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Светлая / тёмная тема"></button>
