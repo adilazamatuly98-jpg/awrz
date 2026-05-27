@@ -157,7 +157,7 @@
       <!-- Поля номерной детали -->
       <div id="p-num-fields">
         <div class="form-row form-row-2">
-          <div class="form-group"><label class="form-label">Номер до</label><input class="form-control" id="p-number" placeholder="напр. 12-3456"></div>
+          <div class="form-group" id="wrap-number-before"><label class="form-label">Номер до</label><input class="form-control" id="p-number" placeholder="напр. 12-3456"></div>
           <div class="form-group" id="wrap-number-after"><label class="form-label">Номер после</label><input class="form-control" id="p-number-after" placeholder="новый номер детали"></div>
           <div class="form-group"><label class="form-label">Завод-изготовитель</label><select class="form-control" id="p-zavod"></select></div>
           <div class="form-group"><label class="form-label">Год изготовления</label><select class="form-control" id="p-god"></select></div>
@@ -521,53 +521,80 @@ function renderParts(){
   parts.forEach((p,i)=>{ (p.kind==='num'?numIdx:unnumIdx).push(i); });
 
   const isAKP = (curDoc.uchastok === 'akp');
-  // Логика колонок по роли
-  const isDefekt = (ROLE === 'defektoskopist');
-  const isBoss   = (ROLE === 'nachalnik' || ROLE === 'nachalnik_ktc' || ROLE === 'admin');
-  // АКП и боссы — показываем обе колонки. Дефектоскопист — только Снято/ушло. Мастер других участков — только Установлено из.
-  const showCondCol      = isDefekt || isAKP || isBoss;
-  const showInstalledCol = !isDefekt && (isAKP || isBoss || ROLE === 'master' || ROLE === 'master_roller');
+  // ── Логика колонок таблицы по роли ──
+  const isDefekt   = (ROLE === 'defektoskopist');
+  const isBoss     = (ROLE === 'nachalnik' || ROLE === 'nachalnik_ktc' || ROLE === 'admin');
+  const isMasterAutoTel = (ROLE === 'master' && (curDoc.uchastok === 'avtoscepka' || curDoc.uchastok === 'telega')) || ROLE === 'master_roller';
+  const isMasterKuzov   = (ROLE === 'master' && curDoc.uchastok === 'kuzov');
 
-  // Динамическая сборка заголовков таблиц
+  // Снято/ушло: дефект, АКП, Кузов, начальники
+  const showCondCol      = isDefekt || isAKP || isMasterKuzov || isBoss;
+  // Установлено из: НЕ дефектоскопист, и (Кузов/АКП/Авт/Тел/Рол/начальник)
+  const showInstalledCol = !isDefekt && (isMasterAutoTel || isMasterKuzov || isAKP || isBoss);
+  // Обоснование выбраковки: видна где есть Снято/ушло (т.е. кроме мастеров Авт/Тел/Рол)
+  const showRejectCol    = showCondCol;
+
+  // ── Заголовок номерной таблицы ──
+  // Спец-порядок:
+  //   - Кузов: ... Снято/ушло → Обоснование выбраковки → Установлено из
+  //   - АКП:   ... Снято/ушло → Установлено из → Обоснование выбраковки
+  //   - Дефект: ... Снято/ушло → Обоснование выбраковки
+  //   - Мастер Авт/Тел/Рол: ... Установлено из (Номер до показываем как read-only визуально)
+  //   - Начальники: всё
   const numHeader = document.querySelector('#parts-num-table thead');
   let numCols = ['Деталь'];
   if (isAKP) { numCols.push('Тип', 'Класс'); }
   numCols.push('Номер до', 'Номер после', 'Завод', 'Год');
   if (showCondCol)      numCols.push('Снято/ушло');
-  if (showInstalledCol) numCols.push('Установлено из');
-  if (!isAKP)           numCols.push('Обоснование выбраковки');
+  if (isMasterKuzov) {
+    if (showRejectCol)    numCols.push('Обоснование выбраковки');
+    if (showInstalledCol) numCols.push('Установлено из');
+  } else {
+    if (showInstalledCol) numCols.push('Установлено из');
+    if (showRejectCol)    numCols.push('Обоснование выбраковки');
+  }
   numCols.push('');
   numHeader.innerHTML = '<tr>' + numCols.map(h=>`<th>${h}</th>`).join('') + '</tr>';
   const numColspan = numCols.length;
+  // Сохраним порядок для рендера строк
+  const numColOrder = numCols.slice(0, -1); // без последней пустой
 
+  // ── Заголовок неномерной таблицы ──
   const unnumHeader = document.querySelector('#parts-unnum-table thead');
   let unnumCols = ['Деталь', 'Кол-во'];
   if (showCondCol)      unnumCols.push('Снято/ушло');
-  if (showInstalledCol) unnumCols.push('Установлено из');
-  unnumCols.push('Обоснование выбраковки', '');
+  if (isMasterKuzov) {
+    if (showRejectCol)    unnumCols.push('Обоснование выбраковки');
+    if (showInstalledCol) unnumCols.push('Установлено из');
+  } else {
+    if (showInstalledCol) unnumCols.push('Установлено из');
+    if (showRejectCol)    unnumCols.push('Обоснование выбраковки');
+  }
+  unnumCols.push('');
   unnumHeader.innerHTML = '<tr>' + unnumCols.map(h=>`<th>${h}</th>`).join('') + '</tr>';
   const unnumColspan = unnumCols.length;
+  const unnumColOrder = unnumCols.slice(0, -1);
 
   // Отрендерим номерные детали
   if(!numIdx.length){numBody.innerHTML=`<tr class="row-empty"><td colspan="${numColspan}">${editable?'Добавьте номерные детали':'Нет'}</td></tr>`;}
   else {
     numBody.innerHTML=numIdx.map(i=>{
       const p=parts[i];
-      const cells = [];
-      cells.push(`<td class="font-bold">${esc(p.type)}</td>`);
-      if (isAKP) {
-        cells.push(`<td>${p.type_detail ? `<span class="badge badge-blue">${esc(p.type_detail)}</span>` : '—'}</td>`);
-        cells.push(`<td>${p.class_detail ? `<span class="badge badge-gray">${esc(p.class_detail)}</span>` : '—'}</td>`);
-      }
-      cells.push(`<td class="text-mono">${esc(p.number)||'—'}</td>`);
-      cells.push(`<td class="text-mono">${esc(p.number_after)||'—'}</td>`);
-      cells.push(`<td>${esc(p.zavod)||'—'}</td>`);
-      cells.push(`<td class="text-mono">${esc(p.god)||'—'}</td>`);
-      if (showCondCol)      cells.push(`<td>${condBadge(p.cond)}</td>`);
-      if (showInstalledCol) cells.push(`<td>${p.installed_from ? `<span class="badge badge-blue">${esc(p.installed_from)}</span>` : '—'}</td>`);
-      if (!isAKP)           cells.push(`<td class="text-muted">${esc(p.reject_reason)||'—'}</td>`);
-      cells.push(`<td>${editable?`<div class="flex gap-2"><button class="btn btn-secondary btn-xs" onclick="editPart(${i})">✎</button><button class="btn btn-danger btn-xs" onclick="rmPart(${i})">✕</button></div>`:''}</td>`);
-      return `<tr>${cells.join('')}</tr>`;
+      const cellByCol = {
+        'Деталь':              `<td class="font-bold">${esc(p.type)}</td>`,
+        'Тип':                 `<td>${p.type_detail ? `<span class="badge badge-blue">${esc(p.type_detail)}</span>` : '—'}</td>`,
+        'Класс':               `<td>${p.class_detail ? `<span class="badge badge-gray">${esc(p.class_detail)}</span>` : '—'}</td>`,
+        'Номер до':            `<td class="text-mono">${esc(p.number)||'—'}</td>`,
+        'Номер после':         `<td class="text-mono">${esc(p.number_after)||'—'}</td>`,
+        'Завод':               `<td>${esc(p.zavod)||'—'}</td>`,
+        'Год':                 `<td class="text-mono">${esc(p.god)||'—'}</td>`,
+        'Снято/ушло':          `<td>${condBadge(p.cond)}</td>`,
+        'Установлено из':      `<td>${p.installed_from ? `<span class="badge badge-blue">${esc(p.installed_from)}</span>` : '—'}</td>`,
+        'Обоснование выбраковки': `<td class="text-muted">${esc(p.reject_reason)||'—'}</td>`,
+      };
+      const rowCells = numColOrder.map(col => cellByCol[col] || '<td>—</td>').join('');
+      const actions = `<td>${editable?`<div class="flex gap-2"><button class="btn btn-secondary btn-xs" onclick="editPart(${i})">✎</button><button class="btn btn-danger btn-xs" onclick="rmPart(${i})">✕</button></div>`:''}</td>`;
+      return `<tr>${rowCells}${actions}</tr>`;
     }).join('');
   }
 
@@ -576,14 +603,16 @@ function renderParts(){
   else {
     unnumBody.innerHTML=unnumIdx.map(i=>{
       const p=parts[i];
-      const uCells = [];
-      uCells.push(`<td class="font-bold">${esc(p.type)}</td>`);
-      uCells.push(`<td class="text-mono">${esc(p.qty)||'—'}</td>`);
-      if (showCondCol)      uCells.push(`<td>${condBadge(p.cond)}</td>`);
-      if (showInstalledCol) uCells.push(`<td>${p.installed_from ? `<span class="badge badge-blue">${esc(p.installed_from)}</span>` : '—'}</td>`);
-      uCells.push(`<td class="text-muted">${esc(p.reject_reason)||'—'}</td>`);
-      uCells.push(`<td>${editable?`<div class="flex gap-2"><button class="btn btn-secondary btn-xs" onclick="editPart(${i})">✎</button><button class="btn btn-danger btn-xs" onclick="rmPart(${i})">✕</button></div>`:''}</td>`);
-      return `<tr>${uCells.join('')}</tr>`;
+      const uCellByCol = {
+        'Деталь':              `<td class="font-bold">${esc(p.type)}</td>`,
+        'Кол-во':              `<td class="text-mono">${esc(p.qty)||'—'}</td>`,
+        'Снято/ушло':          `<td>${condBadge(p.cond)}</td>`,
+        'Установлено из':      `<td>${p.installed_from ? `<span class="badge badge-blue">${esc(p.installed_from)}</span>` : '—'}</td>`,
+        'Обоснование выбраковки': `<td class="text-muted">${esc(p.reject_reason)||'—'}</td>`,
+      };
+      const uRowCells = unnumColOrder.map(col => uCellByCol[col] || '<td>—</td>').join('');
+      const uActions = `<td>${editable?`<div class="flex gap-2"><button class="btn btn-secondary btn-xs" onclick="editPart(${i})">✎</button><button class="btn btn-danger btn-xs" onclick="rmPart(${i})">✕</button></div>`:''}</td>`;
+      return `<tr>${uRowCells}${uActions}</tr>`;
     }).join('');
   }
   
@@ -659,23 +688,35 @@ function handleModalFieldsVisibility(kind) {
     akpFields.style.display = (isAKP && kind === 'num') ? 'block' : 'none';
   }
 
-  // 2. Логика «Снято/ушло» vs «Установлено из»
-  // Деф: только Снято/ушло. Мастер Авт/Тел/Кузов/Рол: только Установлено. АКП Мастер: оба. Боссы: оба.
-  const showCond      = isDefekt || isAKP || isBoss;
-  const showInstalled = (isMaster && !isDefekt) || isBoss;
+  // ── Тонкая логика по ролям ──
+  // Дефектоскопист: «Снято/ушло» + обоснование выбраковки + Номер до. БЕЗ Номер после и БЕЗ Установлено из.
+  // Мастер Автосцепка/Тележ/Рол: ТОЛЬКО «Установлено из». БЕЗ Снято/ушло, БЕЗ Номер до, БЕЗ обоснования.
+  //                              Номер после — да.
+  // Мастер Кузов: «Снято/ушло» + обоснование выбраковки + Установлено из. БЕЗ Номер до.
+  // Мастер АКП: всё (до/после, снято/ушло, установлено, обоснование).
+  // Начальники/admin: всё.
+  const isMasterAutoTelegaRoller = (ROLE === 'master' && (curDoc.uchastok === 'avtoscepka' || curDoc.uchastok === 'telega')) || ROLE === 'master_roller';
+  const isMasterKuzov            = (ROLE === 'master' && curDoc.uchastok === 'kuzov');
+
+  const showCond       = isDefekt || isAKP || isMasterKuzov || isBoss;
+  const showInstalled  = isMasterAutoTelegaRoller || isMasterKuzov || isAKP || isBoss;
+  const showNumberBefore = isDefekt || isAKP || isBoss || isMasterKuzov;  // мастер авт/тел не пишет «до»
+  const showNumberAfter  = !isDefekt;  // дефектоскопист не пишет «после»
 
   const W = id => document.getElementById(id);
-  if(W('wrap-cond-num'))           W('wrap-cond-num').style.display          = showCond      ? '' : 'none';
-  if(W('wrap-cond-unnum'))         W('wrap-cond-unnum').style.display        = showCond      ? '' : 'none';
-  if(W('wrap-installed-from-num')) W('wrap-installed-from-num').style.display= showInstalled ? '' : 'none';
-  if(W('wrap-installed-from-unnum'))W('wrap-installed-from-unnum').style.display = showInstalled ? '' : 'none';
+  if(W('wrap-cond-num'))            W('wrap-cond-num').style.display             = showCond       ? '' : 'none';
+  if(W('wrap-cond-unnum'))          W('wrap-cond-unnum').style.display           = showCond       ? '' : 'none';
+  if(W('wrap-installed-from-num'))  W('wrap-installed-from-num').style.display   = showInstalled  ? '' : 'none';
+  if(W('wrap-installed-from-unnum'))W('wrap-installed-from-unnum').style.display = showInstalled  ? '' : 'none';
+  if(W('wrap-number-before'))       W('wrap-number-before').style.display        = showNumberBefore ? '' : 'none';
+  if(W('wrap-number-after'))        W('wrap-number-after').style.display         = showNumberAfter  ? '' : 'none';
 
-  // 3. «Обоснование выбраковки» — при выборе «забраковано»
+  // «Обоснование выбраковки» — при выборе «забраковано» И если у роли есть Снято/ушло
   const condEl = W(kind === 'num' ? 'p-cond-num' : 'p-cond-unnum');
   const condVal = condEl ? condEl.value : '';
   const rejectWrap = W('wrap-reject-reason');
   if (rejectWrap) {
-    rejectWrap.style.display = (condVal === 'забраковано') ? 'block' : 'none';
+    rejectWrap.style.display = (showCond && condVal === 'забраковано') ? 'block' : 'none';
   }
 }
 
