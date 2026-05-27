@@ -23,16 +23,13 @@ DB_PATH = os.path.join(BASE_DIR, "db.json")
 # ---------------------------------------------------------------------------
 #  Пользователи и роли
 # ---------------------------------------------------------------------------
-#  role:     nachalnik | master | defektoskopist | master_roller
-#  uchastok: avtosцепка / telega / akp / roller / kolesny  (для мастеров)
-# ---------------------------------------------------------------------------
 USERS = {
-    "admin":     {"password": "1", "name": "Администратор (Бюро)",        "role": "admin",      "uchastok": None },
-    "nachalnik":     {"password": "1", "name": "Начальник цеха",        "role": "nachalnik",      "uchastok": None},
-    "master_auto":   {"password": "1", "name": "Мастер (Автосцепка)",   "role": "master",         "uchastok": "avtoscepka"},
-    "master_telega": {"password": "1", "name": "Мастер (Тележечный)",   "role": "master",         "uchastok": "telega"},
-    "master_akp":    {"password": "1", "name": "Мастер (АКП)",          "role": "master",         "uchastok": "akp"},
-    "master_roller": {"password": "1", "name": "Мастер (Роликовый)",    "role": "master_roller",  "uchastok": "roller"},
+    "admin":         {"password": "1", "name": "Администратор (Бюро)", "role": "admin",      "uchastok": None },
+    "nachalnik":     {"password": "1", "name": "Начальник цеха",        "role": "nachalnik",   "uchastok": None},
+    "master_auto":   {"password": "1", "name": "Мастер (Автосцепка)",   "role": "master",      "uchastok": "avtoscepka"},
+    "master_telega": {"password": "1", "name": "Мастер (Тележечный)",   "role": "master",      "uchastok": "telega"},
+    "master_akp":    {"password": "1", "name": "Мастер (АКП)",          "role": "master",      "uchastok": "akp"},
+    "master_roller": {"password": "1", "name": "Мастер (Роликовый)",    "role": "master_roller", "uchastok": "roller"},
     "defekt1":       {"password": "1", "name": "Дефектоскопист",        "role": "defektoskopist", "uchastok": "kolesny"},
 }
 
@@ -44,7 +41,7 @@ UCHASTOK_LABEL = {
     "kolesny": "Колёсный",
 }
 
-# Каталог типов деталей по участкам (выведено отдельно от ОПЗС)
+# Каталог типов деталей по участкам
 PART_TYPES = {
     "avtoscepka": ["Корпус автосцепки", "Замок", "Замкодержатель", "Предохранитель",
                    "Подъёмник", "Валик подъёмника", "Тяговый хомут", "Клин тягового хомута",
@@ -58,13 +55,13 @@ PART_TYPES = {
 
 CONDITIONS = ["Годен", "Требует ремонта", "Брак", "Замена"]
 
-# Номерные (серийные) детали — учёт по номеру/клейму
+# Номерные (серийные) детали
 NUMBERED_DETAILS = {
     "avtoscepka": ["Корпус автосцепки", "Тяговый хомут", "Поглощающий аппарат", "Клин тягового хомута"],
     "telega": ["Боковая рама", "Надрессорная балка", "Колёсная пара"],
     "akp": ["Корпус буксы", "Колёсная пара"],
 }
-# Неномерные детали — учёт по количеству
+# Неномерные детали
 UNNUMBERED_DETAILS = {
     "avtoscepka": ["Замок", "Замкодержатель", "Предохранитель", "Подъёмник",
                    "Валик подъёмника", "Упорная плита"],
@@ -293,7 +290,7 @@ def api_wagons():
 @app.route("/api/wagons", methods=["POST"])
 @login_required
 def api_wagons_create():
-    if current_user()["role"] != "nachalnik":
+    if current_user()["role"] not in ("nachalnik", "admin"):
         return jsonify({"error": "forbidden"}), 403
     data = request.get_json(force=True) or {}
     db = load_db()
@@ -317,7 +314,7 @@ def api_wagons_create():
 @app.route("/api/wagons/<int:wagon_id>", methods=["PUT"])
 @login_required
 def api_wagons_update(wagon_id):
-    if current_user()["role"] != "nachalnik":
+    if current_user()["role"] not in ("nachalnik", "admin"):
         return jsonify({"error": "forbidden"}), 403
     data = request.get_json(force=True) or {}
     db = load_db()
@@ -338,7 +335,7 @@ def api_wagons_update(wagon_id):
 @app.route("/api/wagons/<int:wagon_id>", methods=["DELETE"])
 @login_required
 def api_wagons_delete(wagon_id):
-    if current_user()["role"] != "nachalnik":
+    if current_user()["role"] not in ("nachalnik", "admin"):
         return jsonify({"error": "forbidden"}), 403
     db = load_db()
     db["wagons"] = [x for x in db["wagons"] if x["id"] != wagon_id]
@@ -359,7 +356,7 @@ def api_opzs():
     uch = request.args.get("uchastok")
     if uch:
         docs = [d for d in docs if d["uchastok"] == uch]
-    # мастер видит только свой участок; начальник — все
+    # мастер видит только свой участок; начальник/админ — все
     if u["role"] == "master" and not uch:
         docs = [d for d in docs if d["uchastok"] == u["uchastok"]]
     return jsonify(docs)
@@ -389,6 +386,11 @@ def api_opzs_update(doc_id):
         return jsonify({"error": "locked",
                         "message": "Документ уже отправлен на утверждение и недоступен для изменения"}), 409
     doc["parts"] = data.get("parts", doc.get("parts", []))
+    
+    # Сохраняем типы деталей, если они переданы
+    if "defekt_types" in data:
+        doc["defekt_types"] = data["defekt_types"]
+        
     doc["updated_at"] = datetime.now().isoformat(timespec="seconds")
     if action == "submit":
         doc["status"] = "На утверждении"
@@ -404,8 +406,8 @@ def api_opzs_update(doc_id):
 @app.route("/api/opzs/<int:doc_id>/review", methods=["POST"])
 @login_required
 def api_opzs_review(doc_id):
-    """Начальник: approve | reject (на доработку)."""
-    if current_user()["role"] != "nachalnik":
+    """Начальник/Админ: approve | reject (на доработку)."""
+    if current_user()["role"] not in ("nachalnik", "admin"):
         return jsonify({"error": "forbidden"}), 403
     data = request.get_json(force=True) or {}
     action = data.get("action")
@@ -447,6 +449,56 @@ def api_opzs_comment(doc_id):
     })
     save_db(db)
     return jsonify({"ok": True, "comments": doc["comments"]})
+
+
+# ---------------------------------------------------------------------------
+#  Синхронизация Бюро описи (Администратор)
+# ---------------------------------------------------------------------------
+@app.route('/api/sync_bureau', methods=['POST'])
+@login_required
+def sync_bureau():
+    u = current_user()
+    if not u or u["role"] != "admin":
+        return jsonify({'ok': False, 'error': 'Forbidden'}), 403
+    
+    db = load_db()
+    today = date.today().isoformat()
+    
+    # Эмулируем получение трех новых вагонов
+    new_wagons_data = [
+        {"number": "52847190", "incoming_number": "ВХ-2026-004"},
+        {"number": "63920174", "incoming_number": "ВХ-2026-005"},
+        {"number": "41120059", "incoming_number": "ВХ-2026-006"}
+    ]
+    
+    imported = []
+    for w_data in new_wagons_data:
+        # Проверяем, нет ли уже такого вагона
+        if any(x["number"] == w_data["number"] for x in db["wagons"]):
+            continue
+            
+        wid = next_id(db, "wagons")
+        wagon = {
+            "id": wid,
+            "number": w_data["number"],
+            "incoming_number": w_data["incoming_number"],
+            "date": today,
+            "status": "В ремонте"
+        }
+        db["wagons"].append(wagon)
+        imported.append(wagon)
+        
+        # Автоматическое создание ОПЗС для Автосцепки и Тележечного
+        for uch in ("avtoscepka", "telega"):
+            oid = next_id(db, "opzs")
+            db["opzs"].append(_mk_opzs(oid, wid, wagon["number"], uch))
+            
+    if imported:
+        save_db(db)
+        
+    return jsonify({'ok': True, 'imported_count': len(imported)})
+
+
 def _kp_collection(name):
     @login_required
     def getter():
@@ -714,14 +766,4 @@ def api_transfers_action(tid):
 
 if __name__ == "__main__":
     load_db()  # инициализировать БД
-    app.run(host="0.0.0.0", port=5001, debug=True)
-# Эндпоинт для симуляции синхронизации вагонов из Бюро
-@app.route('/api/sync_bureau', methods=['POST'])
-def sync_bureau():
-    # Проверяем права доступа
-    if session.get('role') != 'admin':
-        return jsonify({'ok': False, 'error': 'Forbidden'}), 403
-    
-    # Здесь бэкенд может автоматически наполнить вашу базу данных вагонами.
-    # Возвращаем статус успешного выполнения для фронтенда:
-    return jsonify({'ok': True})
+    app.run(host="0.0.0.0", port=10000, debug=True)
