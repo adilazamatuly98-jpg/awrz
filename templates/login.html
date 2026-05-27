@@ -13,33 +13,29 @@
 .theme-toggle{position:fixed;top:18px;right:18px;z-index:5;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);font-size:17px;cursor:pointer;transition:.18s}
 .theme-toggle:hover{border-color:var(--blue-600);color:var(--blue-600)}
 *{box-sizing:border-box;margin:0;padding:0}
-body{min-height:100vh;background:var(--bg);font-family:'Manrope',sans-serif;color:var(--text);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-.bg{position:fixed;inset:0;background:
-  radial-gradient(900px 420px at 70% -10%,rgba(37,99,235,.10),transparent 60%),
-  radial-gradient(700px 400px at 10% 110%,rgba(37,99,235,.07),transparent 60%);pointer-events:none}
+body{min-height:100vh;background:var(--bg);font-family:'Manrope',sans-serif;color:var(--text);display:flex;align-items:center;justify-content:center;position:relative;padding:20px}
+.bg{position:fixed;inset:0;background:radial-gradient(900px 420px at 70% -10%,rgba(37,99,235,.10),transparent 60%),radial-gradient(700px 400px at 10% 110%,rgba(37,99,235,.07),transparent 60%);pointer-events:none}
 .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(37,99,235,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(37,99,235,.035) 1px,transparent 1px);background-size:46px 46px;pointer-events:none;mask:radial-gradient(800px 600px at 50% 40%,#000,transparent)}
-.wrap{position:relative;z-index:1;width:100%;max-width:430px;padding:24px}
-.logo{text-align:center;margin-bottom:26px}
-.logo .mark{width:210px;height:96px;margin:0 auto 10px;background-color:var(--logo-fill);-webkit-mask:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJIAAABCCAYAAAC8RY+hAAADcElEQVR4nO3dsWvUYBzG8W88USycKBZBsdDBSerk5iCKgyg4uDs6FQddFUSQ9h8ouBUEQZeqXXRwEgQFJ0VEFNxcrBaEK1WLEock1zTaS3LvL2+S6/OB0DbNvfklfS73vknuGoRhSMqGH0RyBMk32+qsQkaHgiQmFCQxoSCJie0llg3yF5ERVGgApiOSmFCQxISCJCYUJDGhIIkJyyDtMmxLWiYoca0tb/iv63Tt5PJ31bU2sZUNUpCZFn0XJI2WzUefjkhiQkESEwqSmFCQxISCJCYUJDGhIIkJBUlMKEhiQkESEwqSmFCQxISCJCYUJDGhIImJvCDt8VGEtF/2nbZTQBeYBDrASc/1SLOlb7u9BdxIftA926J7tqU5rILUMWpH/OpZNWQVpD/8e2N4Mq0araOMuQH11DnV5d4m9ey2WoFlH2kQ3/2nJn8ETx19yar+dt77SEU3pIf7s7nJIQI4UmJZi6Obl/3hs7M9lvP7WQYfagNgPqeNpocI4D35dT4vsEyRbfW2P3wG6Qfrz6Zp4AtwNzXveoE2LsXLHiR63X8CnKf8s7QJkpqvAM+AO0Tn7wLgRMk2zsWPXwQOU8P+8NVHkvZqVB9JRpyCJCYUJDFRdZB0xrs6Ozys42zRBct8zrYuysqm9NImJhQkMaEgiYlsH+km8KqGOqQ9VoF9wMP0zOyZbZGh6KVNTChIYkJBEhMKkphIRm0HgAXgI1GPfJA1ovtmfgNv4nmrwNUK6kt7RHRZoAOssP6/T3rAznh+D5gAluL6xoD9wDLwCTgKnKq4zhlgPF7vEnAont+Nvy7nPL4L3CYzKqrAT6L9lvbrP/M285poW+aB+0EYhjPANaPivgN7jdrKshxeTgCfDdtLs6yzynvALOt8EYT24/+qNl512jKtM91HmmT4t9nMWhaVoy1vCWp6jRZvr/rQbyx1RHLZgCngrUE7gyR1HgdeOrYB1dfp0v5jovuwXdsZ5CJR33aNqEtyjKiPXOTWn048PUhmbNWXtrb0PaAl+3OrDv/f1V1AQUVHUHVbaOMRybV9q3by2nd1Bnhq1FZVvhKd6tjQ2T7N8J2uaU+Fu5ryuK4ubh3ZqkN0mfxzhnnGk2+yo7Zh+bz1JHSYkgHBooc6Vzysw8Uc8A23/dmXDpJLGOr4xBEXF+ouYMQEfwFN36s+HHuqtQAAAABJRU5ErkJggg==') no-repeat center/contain;mask:url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJIAAABCCAYAAAC8RY+hAAADcElEQVR4nO3dsWvUYBzG8W88USycKBZBsdDBSerk5iCKgyg4uDs6FQddFUSQ9h8ouBUEQZeqXXRwEgQFJ0VEFNxcrBaEK1WLEock1zTaS3LvL2+S6/OB0DbNvfklfS73vknuGoRhSMqGH0RyBMk32+qsQkaHgiQmFCQxoSCJie0llg3yF5ERVGgApiOSmFCQxISCJCYUJDGhIIkJyyDtMmxLWiYoca0tb/iv63Tt5PJ31bU2sZUNUpCZFn0XJI2WzUefjkhiQkESEwqSmFCQxISCJCYUJDGhIIkJBUlMKEhiQkESEwqSmFCQxISCJCYUJDGhIImJvCDt8VGEtF/2nbZTQBeYBDrASc/1SLOlb7u9BdxIftA926J7tqU5rILUMWpH/OpZNWQVpD/8e2N4Mq0araOMuQH11DnV5d4m9ey2WoFlH2kQ3/2nJn8ETx19yar+dt77SEU3pIf7s7nJIQI4UmJZi6Obl/3hs7M9lvP7WQYfagNgPqeNpocI4D35dT4vsEyRbfW2P3wG6Qfrz6Zp4AtwNzXveoE2LsXLHiR63X8CnKf8s7QJkpqvAM+AO0Tn7wLgRMk2zsWPXwQOU8P+8NVHkvZqVB9JRpyCJCYUJDFRdZB0xrs6Ozys42zRBct8zrYuysqm9NImJhQkMaEgiYlsH+km8KqGOqQ9VoF9wMP0zOyZbZGh6KVNTChIYkJBEhMKkphIRm0HgAXgI1GPfJA1ovtmfgNv4nmrwNUK6kt7RHRZoAOssP6/T3rAznh+D5gAluL6xoD9wDLwCTgKnKq4zhlgPF7vEnAont+Nvy7nPL4L3CYzKqrAT6L9lvbrP/M285poW+aB+0EYhjPANaPivgN7jdrKshxeTgCfDdtLs6yzynvALOt8EYT24/+qNl512jKtM91HmmT4t9nMWhaVoy1vCWp6jRZvr/rQbyx1RHLZgCngrUE7gyR1HgdeOrYB1dfp0v5jovuwXdsZ5CJR33aNqEtyjKiPXOTWn048PUhmbNWXtrb0PaAl+3OrDv/f1V1AQUVHUHVbaOMRybV9q3by2nd1Bnhq1FZVvhKd6tjQ2T7N8J2uaU+Fu5ryuK4ubh3ZqkN0mfxzhnnGk2+yo7Zh+bz1JHSYkgHBooc6Vzysw8Uc8A23/dmXDpJLGOr4xBEXF+ouYMQEfwFN36s+HHuqtQAAAABJRU5ErkJggg==') no-repeat center/contain}
-.logo b{display:none}
+.wrap{position:relative;z-index:1;width:100%;max-width:430px}
+.logo{text-align:center;margin-bottom:22px}
+.logo .mark-text{font-weight:900;font-size:32px;letter-spacing:6px;color:var(--logo-fill);margin-bottom:6px}
 .logo span{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text-3);font-weight:700}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:32px;box-shadow:0 24px 60px -22px rgba(16,30,55,.22)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:28px;box-shadow:0 24px 60px -22px rgba(16,30,55,.22)}
 .title{font-weight:800;font-size:21px;margin-bottom:4px}
-.subtitle{color:var(--text-2);font-size:13px;margin-bottom:22px}
+.subtitle{color:var(--text-2);font-size:13px;margin-bottom:20px}
 .fg{margin-bottom:14px}
 .lbl{display:block;font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--text-2);margin-bottom:6px}
-.inp{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:11px 14px;border-radius:var(--radius-sm);font-family:'Manrope';font-size:15px;outline:none;transition:.18s}
-.inp:focus{border-color:var(--blue-600);box-shadow:0 0 0 4px rgba(37,99,235,.14)}
+.inp,.sel{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:11px 14px;border-radius:var(--radius-sm);font-family:'Manrope';font-size:15px;outline:none;transition:.18s;cursor:pointer}
+.inp:focus,.sel:focus{border-color:var(--blue-600);box-shadow:0 0 0 4px rgba(37,99,235,.14)}
+.sel{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23999' d='M6 8L0 0h12z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
 .btn{width:100%;background:var(--blue-600);color:#fff;border:none;padding:13px;border-radius:var(--radius-sm);font-family:'Manrope';font-weight:800;font-size:15px;letter-spacing:.4px;cursor:pointer;transition:.18s;margin-top:6px}
 .btn:hover{background:var(--blue-700);box-shadow:0 8px 22px -6px rgba(37,99,235,.6)}
 .btn:disabled{opacity:.6;cursor:wait}
 .err{background:#fdeaea;border:1px solid #f8caca;color:var(--red);border-radius:var(--radius-sm);padding:10px 13px;font-size:13px;margin-top:13px;display:none;font-weight:600}
-.demo{margin-top:22px;padding-top:18px;border-top:1px solid var(--border)}
-.demo-lbl{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-3);margin-bottom:10px}
-.du{display:flex;justify-content:space-between;align-items:center;padding:9px 11px;border-radius:var(--radius-sm);cursor:pointer;border:1px solid transparent;transition:.13s;margin-bottom:3px}
-.du:hover{background:#f4f7fc;border-color:var(--border);transform:translateX(2px)}
-.du b{font-size:13px;font-weight:600}
-.du span{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-3)}
+.divider{display:flex;align-items:center;gap:10px;margin:18px 0 14px;color:var(--text-3);font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.hint{font-size:12px;color:var(--text-3);text-align:center;margin-top:14px}
+.hint b{color:var(--text-2);font-family:'IBM Plex Mono',monospace}
 </style>
 </head>
 <body>
@@ -47,39 +43,57 @@ body{min-height:100vh;background:var(--bg);font-family:'Manrope',sans-serif;colo
 <div class="bg"></div><div class="grid-bg"></div>
 <div class="wrap">
   <div class="logo">
-<div class="mark" role="img" aria-label="АВРЗ"></div>
+    <div class="mark-text">АВРЗ</div>
     <span>Система учёта ремонта вагонов</span>
   </div>
   <div class="card">
     <div class="title">Вход в систему</div>
-    <div class="subtitle">Авторизуйтесь для продолжения работы</div>
+    <div class="subtitle">Выберите пользователя или введите вручную</div>
+
+    <div class="fg">
+      <label class="lbl">Демо-доступ</label>
+      <select class="sel" id="user-select" onchange="onSelectUser()">
+        <option value="">— Выберите пользователя —</option>
+        <optgroup label="Управление">
+          <option value="admin">Администратор (Бюро описи)</option>
+        </optgroup>
+        <optgroup label="ВРЦ — Вагоноремонтный цех">
+          <option value="nachalnik">Начальник ВРЦ</option>
+          <option value="master_auto">Мастер · Автосцепка</option>
+          <option value="master_akp">Мастер · АКП</option>
+          <option value="master_kuzov">Мастер · Кузов</option>
+        </optgroup>
+        <optgroup label="КТЦ — Колёсно-тележечный цех">
+          <option value="nachalnik_ktc">Начальник КТЦ</option>
+          <option value="master_telega">Мастер · Тележечный</option>
+          <option value="master_roller">Мастер · Роликовый</option>
+        </optgroup>
+        <optgroup label="Контроль">
+          <option value="defekt1">Дефектоскопист</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <div class="divider">или</div>
+
     <div class="fg"><label class="lbl">Логин</label><input class="inp" id="u" placeholder="Введите логин" autocomplete="username"></div>
     <div class="fg"><label class="lbl">Пароль</label><input class="inp" id="p" type="password" placeholder="••••••••" autocomplete="current-password"></div>
     <button class="btn" id="btn" onclick="doLogin()">Войти</button>
     <div class="err" id="err"></div>
-    <div class="demo">
-      <div class="demo-lbl">Быстрый вход (демо)</div>
-      <div class="du" onclick="fill('admin')"><b>Администратор (Бюро описи)</b><span>admin / 1</span></div>
-
-      <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-3);padding:8px 0 4px;">ВРЦ — Вагоноремонтный цех</div>
-      <div class="du" onclick="fill('nachalnik')"><b>Начальник ВРЦ</b><span>nachalnik / 1</span></div>
-      <div class="du" onclick="fill('master_auto')"><b>Мастер · Автосцепка</b><span>master_auto / 1</span></div>
-      <div class="du" onclick="fill('master_akp')"><b>Мастер · АКП</b><span>master_akp / 1</span></div>
-      <div class="du" onclick="fill('master_kuzov')"><b>Мастер · Кузов</b><span>master_kuzov / 1</span></div>
-
-      <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-3);padding:8px 0 4px;">КТЦ — Колёсно-тележечный цех</div>
-      <div class="du" onclick="fill('nachalnik_ktc')"><b>Начальник КТЦ</b><span>nachalnik_ktc / 1</span></div>
-      <div class="du" onclick="fill('master_telega')"><b>Мастер · Тележечный</b><span>master_telega / 1</span></div>
-      <div class="du" onclick="fill('master_roller')"><b>Мастер · Роликовый</b><span>master_roller / 1</span></div>
-      <div class="du" onclick="fill('defekt1')"><b>Дефектоскопист</b><span>defekt1 / 1</span></div>
-    </div>
+    <div class="hint">Пароль для демо: <b>1</b></div>
   </div>
 </div>
 <script>
 function applyThemeIcon(){var d=document.documentElement.getAttribute('data-theme')==='dark';var b=document.getElementById('theme-toggle');if(b)b.textContent=d?'☀️':'🌙';}
 function toggleTheme(){var d=document.documentElement.getAttribute('data-theme')==='dark';if(d){document.documentElement.removeAttribute('data-theme');try{localStorage.setItem('avrz-theme','light');}catch(e){}}else{document.documentElement.setAttribute('data-theme','dark');try{localStorage.setItem('avrz-theme','dark');}catch(e){}}applyThemeIcon();}
 applyThemeIcon();
-function fill(u){document.getElementById('u').value=u;document.getElementById('p').value='1';doLogin();}
+function onSelectUser(){
+  const v=document.getElementById('user-select').value;
+  if(!v) return;
+  document.getElementById('u').value=v;
+  document.getElementById('p').value='1';
+  doLogin();
+}
 async function doLogin(){
   const u=document.getElementById('u').value.trim(),p=document.getElementById('p').value;
   if(!u||!p)return;
