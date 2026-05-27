@@ -236,30 +236,16 @@ select.form-control{cursor:pointer;appearance:none;background-image:url("data:im
   .content{padding:18px}
 }
 .scrim{position:fixed;inset:0;background:rgba(14,23,38,.4);z-index:35;display:none}
-/* ----- Sidebar collapse (desktop) ----- */
-body.sidebar-collapsed{--sidebar-w:60px}
-body.sidebar-collapsed .sidebar .brand-txt,
-body.sidebar-collapsed .sidebar .nav-sec,
-body.sidebar-collapsed .sidebar .nav-link>:not(.ic),
-body.sidebar-collapsed .sidebar .side-foot .meta,
-body.sidebar-collapsed .sidebar .side-foot .logout>:not(:first-child),
-body.sidebar-collapsed .sidebar .nav-badge{display:none}
-body.sidebar-collapsed .sidebar .nav-link{justify-content:center;padding:10px 0}
-body.sidebar-collapsed .sidebar .nav-link .ic{font-size:20px;width:auto}
-body.sidebar-collapsed .sidebar .brand{align-items:center;padding:16px 10px}
-body.sidebar-collapsed .sidebar .brand .logo{width:36px;height:36px}
-body.sidebar-collapsed .sidebar .user-chip{justify-content:center;padding:8px 0}
-body.sidebar-collapsed .sidebar .avatar{flex-shrink:0}
-body.sidebar-collapsed .sidebar .logout{justify-content:center;padding:9px 0}
-body.sidebar-collapsed .sidebar .side-foot>a .logout-txt{display:none}
-.sidebar-pin{display:flex;align-items:center;justify-content:center;
-  width:28px;height:28px;border-radius:7px;border:1px solid var(--border);
-  background:var(--surface);color:var(--text-3);font-size:14px;
-  cursor:pointer;transition:var(--t);flex-shrink:0;margin-left:auto}
-.sidebar-pin:hover{border-color:var(--accent);color:var(--accent);background:var(--blue-50)}
-body.sidebar-collapsed .sidebar-pin .pin-icon{transform:rotate(90deg)}
-
 body.nav-open .scrim{display:block}
+
+/* ── Desktop sidebar slide-out ── */
+.main{transition:margin-left var(--t)}
+.sidebar{transition:transform var(--t)}
+@media(min-width:901px){
+  .burger{display:flex!important}
+  body.sidebar-hidden .sidebar{transform:translateX(-100%)}
+  body.sidebar-hidden .main{margin-left:0}
+}
 </style>
 {% block head %}{% endblock %}
 </head>
@@ -270,25 +256,24 @@ body.nav-open .scrim{display:block}
     <div class="brand">
       <div class="logo" role="img" aria-label="АВРЗ"></div>
       <div class="brand-txt"><span>Ремонт вагонов · Акмола</span></div>
-      <button class="sidebar-pin" id="sidebar-pin" onclick="toggleSidebar()" title="Свернуть/развернуть панель"><span class="pin-icon">⇤</span></button>
     </div>
     <nav class="nav" id="nav">
       <div class="nav-sec">Обзор</div>
-      <a class="nav-link" href="/dashboard"><span class="ic">▦</span> Главная</a>
+      <a class="nav-link" href="/dashboard"><span class="ic">▦</span><span class="nav-txt"> Главная</span></a>
       {% if role in ['nachalnik', 'master', 'defektoskopist', 'admin'] %}
       <div class="nav-sec">Производство</div>
-      <a class="nav-link" href="/wagons"><span class="ic">🚃</span> Вагоны</a>
-      <a class="nav-link" href="/opzs"><span class="ic">📋</span> ОПЗС <span class="nav-badge" id="nav-opzs-badge" style="display:none;"></span></a>
+      <a class="nav-link" href="/wagons"><span class="ic">🚃</span><span class="nav-txt"> Вагоны</span></a>
+      <a class="nav-link" href="/opzs"><span class="ic">📋</span><span class="nav-txt"> ОПЗС <span class="nav-badge" id="nav-opzs-badge" style="display:none;"></span></a>
       {% endif %}
       {% if role in ['nachalnik', 'defektoskopist', 'master_roller', 'admin'] %}
-      <a class="nav-link" href="/kp"><span class="ic">⚙️</span> Колёсные пары</a>
+      <a class="nav-link" href="/kp"><span class="ic">⚙️</span><span class="nav-txt"> Колёсные пары</span></a>
       {% endif %}
       {% if role in ['nachalnik', 'master', 'admin'] %}
-      <a class="nav-link" href="/nakatka"><span class="ic">📄</span> Натурный лист</a>
+      <a class="nav-link" href="/nakatka"><span class="ic">📄</span><span class="nav-txt"> Натурный колёсный лист</span></a>
       {% endif %}
       <div class="nav-sec">Логистика</div>
-      <a class="nav-link" href="/sklad"><span class="ic">📦</span> Мой склад</a>
-      <a class="nav-link" href="/transfers"><span class="ic">🔁</span> Перемещения</a>
+      <a class="nav-link" href="/sklad"><span class="ic">📦</span><span class="nav-txt"> Мой склад</span></a>
+      <a class="nav-link" href="/transfers"><span class="ic">🔁</span><span class="nav-txt"> Заявки на получение</span></a>
     </nav>
     <div class="side-foot">
       <div class="user-chip">
@@ -301,7 +286,7 @@ body.nav-open .scrim{display:block}
 
   <div class="main">
     <header class="topbar">
-      <button class="burger" onclick="document.body.classList.toggle('nav-open')">☰</button>
+      <button class="burger" id="burger-btn" onclick="toggleNav()">☰</button>
       <div class="crumb">{% block crumb %}{% endblock %}</div>
       <div class="topbar-spacer"></div>
       <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Светлая / тёмная тема"></button>
@@ -439,16 +424,20 @@ function monthYearSelect(idMonth,idYear,sel){
 }
 </script>
 <script>
-/* ---- sidebar collapse ---- */
+/* ── sidebar toggle ── */
 (function(){
-  if(window.innerWidth<=900) return;
-  const c=localStorage.getItem('avrz-sidebar-collapsed');
-  if(c==='1') document.body.classList.add('sidebar-collapsed');
+  try{
+    if(window.innerWidth > 900 && localStorage.getItem('avrz-sb') === '1')
+      document.body.classList.add('sidebar-hidden');
+  }catch(e){}
 })();
-function toggleSidebar(){
-  document.body.classList.toggle('sidebar-collapsed');
-  localStorage.setItem('avrz-sidebar-collapsed',
-    document.body.classList.contains('sidebar-collapsed')?'1':'0');
+function toggleNav(){
+  if(window.innerWidth <= 900){
+    document.body.classList.toggle('nav-open');
+  } else {
+    document.body.classList.toggle('sidebar-hidden');
+    try{ localStorage.setItem('avrz-sb', document.body.classList.contains('sidebar-hidden')?'1':'0'); }catch(e){}
+  }
 }
 </script>
 {% block scripts %}{% endblock %}
