@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}Мой склад — АВРЗ{% endblock %}
-{% block crumb %}Логистика <span>/ Мой склад</span>{% endblock %}
+{% block title %}{% if role in ['nachalnik','nachalnik_ktc','admin'] %}Общий склад{% else %}Мой склад{% endif %} — АВРЗ{% endblock %}
+{% block crumb %}Логистика <span>/ {% if role in ['nachalnik','nachalnik_ktc','admin'] %}Общий склад{% else %}Мой склад{% endif %}</span>{% endblock %}
 {% block content %}
 <div class="page-header">
-  <div><div class="page-title">Мой <span>склад</span></div>
-  <div class="page-sub">Остатки деталей и запасных частей{% if role!='nachalnik' %} · {{ uchastok_label }}{% endif %}</div></div>
+  <div><div class="page-title">{% if role in ['nachalnik','nachalnik_ktc','admin'] %}Общий <span>склад</span>{% else %}Мой <span>склад</span>{% endif %}</div>
+  <div class="page-sub">{% if role in ['nachalnik','nachalnik_ktc','admin'] %}Сводный учёт по всем участкам цеха{% else %}Остатки деталей и запасных частей · {{ uchastok_label }}{% endif %}</div></div>
   <button class="btn btn-primary" onclick="openAdd()">＋ Добавить позицию</button>
 </div>
 
@@ -15,7 +15,7 @@
   </div>
   <div class="card-body" style="padding:0;">
     <div class="tbl-wrap"><table>
-      <thead><tr><th>Наименование</th><th>Тип детали</th><th>Кол-во</th>{% if role=='nachalnik' %}<th>Владелец</th>{% endif %}<th>Примечание</th><th></th></tr></thead>
+      <thead><tr><th>Наименование</th><th>Тип детали</th><th>Кол-во</th>{% if role in ['nachalnik','nachalnik_ktc','admin'] %}<th>Владелец</th>{% endif %}<th>Примечание</th><th></th></tr></thead>
       <tbody id="body"><tr class="row-empty"><td colspan="6">Загрузка…</td></tr></tbody>
     </table></div>
   </div>
@@ -49,13 +49,13 @@ async function load(){
 }
 function render(list){
   const b=document.getElementById('body');
-  const cols=ROLE==='nachalnik'?6:5;
+  const cols=(ROLE==='nachalnik'||ROLE==='nachalnik_ktc'||ROLE==='admin')?6:5;
   if(!list.length){b.innerHTML=`<tr class="row-empty"><td colspan="${cols}"><span class="empty-hint"><span class="em">📦</span>Склад пуст</span></td></tr>`;return;}
   b.innerHTML=list.map(it=>`<tr>
     <td class="font-bold">${esc(it.name)}</td>
     <td>${it.type?`<span class="badge badge-blue">${esc(it.type)}</span>`:'—'}</td>
     <td class="text-mono font-bold">${esc(it.qty)}</td>
-    ${ROLE==='nachalnik'?`<td class="text-muted">${esc((users[it.owner]||{}).name||it.owner)}</td>`:''}
+    ${(ROLE==='nachalnik'||ROLE==='nachalnik_ktc'||ROLE==='admin')?`<td class="text-muted">${esc((users[it.owner]||{}).name||it.owner)}</td>`:''}
     <td class="text-muted">${esc(it.note)||'—'}</td>
     <td><div class="flex gap-2">
       <button class="btn btn-secondary btn-xs" onclick="transfer('${esc(it.name)}')">🔁 Переместить</button>
