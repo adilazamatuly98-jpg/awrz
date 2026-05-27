@@ -1,150 +1,104 @@
 {% extends "base.html" %}
-{% block title %}Главная — АРМ Ремонт{% endblock %}
+{% block title %}Главная — АВРЗ{% endblock %}
+{% block crumb %}Главная{% endblock %}
 {% block content %}
-<div class="page">
-  <div class="page-header">
-    <div>
-      <div class="page-title">Добро пожаловать, <span>{{ user }}</span></div>
-      <div class="text-muted" style="font-size:13px;margin-top:4px;">Система учёта и ремонта вагонов и колёсных пар</div>
-    </div>
-    <div id="clock" style="font-family:'IBM Plex Mono',monospace;font-size:20px;color:var(--accent);"></div>
+<div class="page-header">
+  <div>
+    <div class="page-title">Добро пожаловать, <span>{{ user }}</span></div>
+    <div class="page-sub">Система учёта и ремонта вагонов и колёсных пар · {{ uchastok_label or 'Управление цехом' }}</div>
   </div>
+</div>
 
-  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:24px;">
-    {% if role in ['nachalnik','master','defektoskopist'] %}
-    <a href="/wagons" style="text-decoration:none;">
-      <div class="card" style="padding:20px;cursor:pointer;transition:border-color .15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-        <div style="display:flex;align-items:center;gap:14px;">
-          <div style="font-size:32px;">🚃</div>
-          <div>
-            <div style="font-family:'Oswald',sans-serif;font-size:18px;font-weight:600;">Вагоны</div>
-            <div class="text-muted" style="font-size:12px;">Реестр вагонов, поступивших в ремонт</div>
-          </div>
-        </div>
-        <div id="stat-wagons" style="margin-top:14px;font-size:28px;font-family:'Oswald',sans-serif;color:var(--accent);">—</div>
-        <div class="text-muted" style="font-size:11px;">вагонов в работе</div>
-      </div>
-    </a>
-    <a href="/opzs" style="text-decoration:none;">
-      <div class="card" style="padding:20px;cursor:pointer;transition:border-color .15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-        <div style="display:flex;align-items:center;gap:14px;">
-          <div style="font-size:32px;">📋</div>
-          <div>
-            <div style="font-family:'Oswald',sans-serif;font-size:18px;font-weight:600;">ОПЗС</div>
-            <div class="text-muted" style="font-size:12px;">Документы осмотра и замены деталей</div>
-          </div>
-        </div>
-        <div id="stat-opzs" style="margin-top:14px;font-size:28px;font-family:'Oswald',sans-serif;color:var(--accent);">—</div>
-        <div class="text-muted" style="font-size:11px;">открытых документов</div>
-      </div>
-    </a>
-    {% endif %}
-    {% if role in ['nachalnik','defektoskopist','master_roller'] %}
-    <a href="/kp" style="text-decoration:none;">
-      <div class="card" style="padding:20px;cursor:pointer;transition:border-color .15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-        <div style="display:flex;align-items:center;gap:14px;">
-          <div style="font-size:32px;">⚙️</div>
-          <div>
-            <div style="font-family:'Oswald',sans-serif;font-size:18px;font-weight:600;">Колёсные пары</div>
-            <div class="text-muted" style="font-size:12px;">Приход / выход / роликовый участок</div>
-          </div>
-        </div>
-        <div id="stat-kp" style="margin-top:14px;font-size:28px;font-family:'Oswald',sans-serif;color:var(--accent);">—</div>
-        <div class="text-muted" style="font-size:11px;">документов сегодня</div>
-      </div>
-    </a>
-    {% endif %}
-    {% if role in ['nachalnik','master'] %}
-    <a href="/nakatka" style="text-decoration:none;">
-      <div class="card" style="padding:20px;cursor:pointer;transition:border-color .15s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
-        <div style="display:flex;align-items:center;gap:14px;">
-          <div style="font-size:32px;">📄</div>
-          <div>
-            <div style="font-family:'Oswald',sans-serif;font-size:18px;font-weight:600;">Натурный лист</div>
-            <div class="text-muted" style="font-size:12px;">Настурный колёсный лист (тележечный)</div>
-          </div>
-        </div>
-        <div id="stat-nakatka" style="margin-top:14px;font-size:28px;font-family:'Oswald',sans-serif;color:var(--accent);">—</div>
-        <div class="text-muted" style="font-size:11px;">листов создано</div>
-      </div>
-    </a>
-    {% endif %}
-  </div>
+<div class="stat-grid" style="margin-bottom:22px;">
+  {% if role in ['nachalnik','master','defektoskopist'] %}
+  <a href="/wagons"><div class="stat"><div class="ico">🚃</div><div class="val" id="s-wagons">—</div><div class="lbl">Вагоны</div><div class="desc">в работе</div></div></a>
+  <a href="/opzs"><div class="stat"><div class="ico">📋</div><div class="val" id="s-opzs">—</div><div class="lbl">ОПЗС</div><div class="desc">требуют действий</div></div></a>
+  {% endif %}
+  {% if role in ['nachalnik','defektoskopist','master_roller'] %}
+  <a href="/kp"><div class="stat"><div class="ico">⚙️</div><div class="val" id="s-kp">—</div><div class="lbl">Колёсные пары</div><div class="desc">документов</div></div></a>
+  {% endif %}
+  {% if role in ['nachalnik','master'] %}
+  <a href="/nakatka"><div class="stat"><div class="ico">📄</div><div class="val" id="s-nak">—</div><div class="lbl">Натурные листы</div><div class="desc">создано</div></div></a>
+  {% endif %}
+  <a href="/sklad"><div class="stat"><div class="ico">📦</div><div class="val" id="s-sklad">—</div><div class="lbl">Мой склад</div><div class="desc">позиций</div></div></a>
+  <a href="/transfers"><div class="stat"><div class="ico">🔁</div><div class="val" id="s-tr">—</div><div class="lbl">Перемещения</div><div class="desc">заявок</div></div></a>
+</div>
 
-  <div class="card">
-    <div class="card-header"><div class="card-title">Участки цеха</div></div>
-    <div class="card-body">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
-        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:14px;">
-          <div style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:600;margin-bottom:6px;">🔧 Автосцепка</div>
-          <div class="text-muted" style="font-size:12px;">Дефектоскопия и ремонт автосцепного устройства</div>
-          <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
-            <span class="badge badge-warn">ОПЗС</span>
-            <span class="badge badge-open">Дефектоскопист</span>
-            <span class="badge badge-done">Мастер</span>
-          </div>
-        </div>
-        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:14px;">
-          <div style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:600;margin-bottom:6px;">🏗 Тележечный</div>
-          <div class="text-muted" style="font-size:12px;">Ремонт тележек, подкатка колёсных пар</div>
-          <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
-            <span class="badge badge-warn">ОПЗС</span>
-            <span class="badge badge-open">Дефектоскопист</span>
-            <span class="badge badge-done">Мастер</span>
-          </div>
-        </div>
-        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:14px;">
-          <div style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:600;margin-bottom:6px;">🔩 АКП</div>
-          <div class="text-muted" style="font-size:12px;">Ремонт автоматических конусных подшипников</div>
-          <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
-            <span class="badge badge-warn">ОПЗС ручной</span>
-            <span class="badge badge-done">Мастер</span>
-          </div>
-        </div>
-        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:14px;">
-          <div style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:600;margin-bottom:6px;">⚙️ Колёсный</div>
-          <div class="text-muted" style="font-size:12px;">Приход и дефектоскопия колёсных пар</div>
-          <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
-            <span class="badge badge-open">Дефектоскопист</span>
-          </div>
-        </div>
-        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:14px;">
-          <div style="font-family:'Oswald',sans-serif;font-size:15px;font-weight:600;margin-bottom:6px;">🔄 Роликовый</div>
-          <div class="text-muted" style="font-size:12px;">Ремонт буксовых узлов и роликовых подшипников</div>
-          <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
-            <span class="badge badge-done">Мастер роликовый</span>
-          </div>
-        </div>
-      </div>
+<div class="card" id="action-card" style="margin-bottom:22px;display:none;">
+  <div class="card-header"><div class="card-title">⚡ Требуют вашего действия</div><span class="badge badge-amber" id="action-count">0</span></div>
+  <div class="card-body" id="action-body" style="padding:14px 16px;"></div>
+</div>
+
+<div class="card">
+  <div class="card-header"><div class="card-title">Участки цеха</div></div>
+  <div class="card-body">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;">
+      <div class="uchastok"><b>🔧 Автосцепка</b><p>Дефектоскопия и ремонт автосцепного устройства</p><div class="t"><span class="badge badge-amber">ОПЗС</span><span class="badge badge-blue">Дефектоскопист</span><span class="badge badge-green">Мастер</span></div></div>
+      <div class="uchastok"><b>🏗 Тележечный</b><p>Ремонт тележек, подкатка колёсных пар</p><div class="t"><span class="badge badge-amber">ОПЗС</span><span class="badge badge-green">Мастер</span></div></div>
+      <div class="uchastok"><b>🔩 АКП</b><p>Ремонт буксовых узлов</p><div class="t"><span class="badge badge-amber">ОПЗС</span><span class="badge badge-green">Мастер</span></div></div>
+      <div class="uchastok"><b>⚙️ Колёсный</b><p>Приход и дефектоскопия КП</p><div class="t"><span class="badge badge-blue">Дефектоскопист</span></div></div>
+      <div class="uchastok"><b>🔄 Роликовый</b><p>Ремонт буксовых узлов и подшипников</p><div class="t"><span class="badge badge-green">Мастер роликовый</span></div></div>
     </div>
   </div>
 </div>
+
+<style>
+.stat-grid a{text-decoration:none;color:inherit}
+.uchastok{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:15px;transition:var(--t)}
+.uchastok:hover{border-color:var(--blue-200);background:var(--blue-50);box-shadow:var(--shadow-sm)}
+.uchastok b{font-weight:700;font-size:15px}
+.uchastok p{color:var(--text-2);font-size:12px;margin:6px 0 10px}
+.uchastok .t{display:flex;gap:6px;flex-wrap:wrap}
+.action-row{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:8px;transition:var(--t);cursor:pointer;text-decoration:none;color:inherit}
+.action-row:last-child{margin-bottom:0}
+.action-row:hover{border-color:var(--blue-200);background:var(--blue-50)}
+.action-row .ar-ic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.action-row .ar-main{flex:1;min-width:0}
+.action-row .ar-main b{font-size:14px;display:block}
+.action-row .ar-main span{font-size:12px;color:var(--text-2)}
+</style>
 {% endblock %}
 {% block scripts %}
 <script>
-function tick() {
-  const now = new Date();
-  const s = now.toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  document.getElementById('clock').textContent = s;
-}
-tick(); setInterval(tick, 1000);
+async function j(u){try{return await fetch(u).then(r=>r.json());}catch(e){return [];}}
+(async function(){
+  const [w,o,ka,kd,r,n,sk,tr]=await Promise.all([
+    j('/api/wagons'),j('/api/opzs'),j('/api/kp_arrival'),j('/api/kp_departure'),
+    j('/api/roller'),j('/api/nakatka'),j('/api/warehouse'),j('/api/transfers')]);
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('s-wagons',w.length);
+  set('s-opzs',o.filter(d=>d.status==='На утверждении'||d.status==='На доработке').length);
+  set('s-kp',ka.length+kd.length+r.length);
+  set('s-nak',n.length);
+  set('s-sklad',sk.length);
+  set('s-tr',tr.length);
 
-async function loadStats() {
-  try {
-    const [w, o, ka, kd, r, n] = await Promise.all([
-      fetch('/api/wagons').then(r=>r.json()),
-      fetch('/api/opzs').then(r=>r.json()),
-      fetch('/api/kp_arrival').then(r=>r.json()),
-      fetch('/api/kp_departure').then(r=>r.json()),
-      fetch('/api/roller').then(r=>r.json()),
-      fetch('/api/nakatka').then(r=>r.json()),
-    ]);
-    if(document.getElementById('stat-wagons')) document.getElementById('stat-wagons').textContent = w.length;
-    if(document.getElementById('stat-opzs')) document.getElementById('stat-opzs').textContent = o.filter(d=>d.status==='Открыт').length;
-    if(document.getElementById('stat-kp')) document.getElementById('stat-kp').textContent = ka.length + kd.length + r.length;
-    if(document.getElementById('stat-nakatka')) document.getElementById('stat-nakatka').textContent = n.length;
-  } catch(e) {}
-}
-loadStats();
+  // ---- Требуют вашего действия ----
+  const role="{{ role }}", me="{{ username }}";
+  const items=[];
+  if(role==='nachalnik'){
+    o.filter(d=>d.status==='На утверждении').forEach(d=>items.push({
+      ic:'📋',bg:'var(--amber-bg)',title:`ОПЗС · Вагон ${d.wagon_number}`,
+      sub:'Ожидает утверждения',href:`/opzs?doc=${d.id}`}));
+  } else {
+    o.filter(d=>d.status==='На доработке').forEach(d=>items.push({
+      ic:'↩️',bg:'var(--red-bg)',title:`ОПЗС · Вагон ${d.wagon_number}`,
+      sub:'Возвращён на доработку'+(d.comment?': '+d.comment:''),href:`/opzs?doc=${d.id}`}));
+  }
+  tr.filter(t=>t.to_user===me && t.status==='Создана').forEach(t=>items.push({
+    ic:'🔁',bg:'var(--blue-50)',title:`Перемещение · ${t.item}`,
+    sub:`От: ${t.from_name} · ${t.qty} шт`,href:'/transfers'}));
+
+  if(items.length){
+    document.getElementById('action-count').textContent=items.length;
+    document.getElementById('action-body').innerHTML=items.map(i=>`
+      <a class="action-row" href="${i.href}">
+        <div class="ar-ic" style="background:${i.bg}">${i.ic}</div>
+        <div class="ar-main"><b>${i.title}</b><span>${i.sub}</span></div>
+        <span style="color:var(--text-3);font-size:18px;">›</span>
+      </a>`).join('');
+    document.getElementById('action-card').style.display='block';
+  }
+})();
 </script>
 {% endblock %}
