@@ -9,15 +9,16 @@
 </div>
 
 <div class="tabs" id="tabs" style="margin-bottom:18px;max-width:520px;">
-  <button class="tab active" data-t="kp_arrival" onclick="switchTab('kp_arrival')">⬇️ Приход</button>
-  <button class="tab" data-t="kp_departure" onclick="switchTab('kp_departure')">⬆️ Выход</button>
-  <button class="tab" data-t="roller" onclick="switchTab('roller')">🔄 Роликовый</button>
+  <button class="tab active" data-t="kp_arrival"   onclick="switchTab('kp_arrival')">⬇️ Приход</button>
+  <button class="tab"        data-t="kp_departure" onclick="switchTab('kp_departure')">⬆️ Выход</button>
+  <button class="tab"        data-t="roller"        onclick="switchTab('roller')">🔄 Роликовый</button>
 </div>
 
 <div class="card">
   <div class="card-header">
     <div class="card-title" id="list-title">Документы</div>
-    <div class="search-box"><span class="ic">🔍</span><input class="form-control" id="search" style="width:240px;" placeholder="Поиск по всем полям…"></div>
+    <div class="search-box"><span class="ic">🔍</span>
+      <input class="form-control" id="search" style="width:240px;" placeholder="Поиск по всем полям…"></div>
   </div>
   <div class="card-body" style="padding:0;">
     <div class="tbl-wrap"><table>
@@ -27,126 +28,228 @@
   </div>
 </div>
 
-<!-- Create / view modal -->
+<!-- Модальное окно создания / просмотра -->
 <div class="modal-overlay" id="m-doc">
   <div class="modal modal-lg" style="max-width:760px;">
-    <div class="modal-header"><div class="modal-title" id="doc-title">Колёсная пара</div><button class="btn-close" onclick="closeModal('m-doc')">✕</button></div>
+    <div class="modal-header">
+      <div class="modal-title" id="doc-title">Колёсная пара</div>
+      <button class="btn-close" onclick="closeModal('m-doc')">✕</button>
+    </div>
     <div class="modal-body">
       <div class="form-row form-row-2">
-        <div class="form-group"><label class="form-label">Номер КП</label><input class="form-control" id="f-num"></div>
+        <div class="form-group"><label class="form-label">Номер КП</label>
+          <input class="form-control" id="f-num" placeholder="напр. 01-123456"></div>
         <div class="form-group"><label class="form-label">Тип КП</label>
-          <select class="form-control" id="f-tip"><option>РУ1-950</option><option>РУ1Ш-950</option><option>РВ2Ш-957</option><option>РВ3Ш-957</option></select></div>
-        <div class="form-group"><label class="form-label">Год изготовления</label><select class="form-control" id="f-god"></select></div>
+          <select class="form-control" id="f-tip">
+            <option>РУ1-950</option><option>РУ1Ш-950</option>
+            <option>РВ2Ш-957</option><option>РВ3Ш-957</option>
+          </select></div>
+        <div class="form-group"><label class="form-label">Год изготовления</label>
+          <select class="form-control" id="f-god"></select></div>
         <div class="form-group"><label class="form-label">Завод</label>
-          <select class="form-control" id="f-zavod"><option value="">—</option><option>НКМЗ</option><option>ВМЗ</option><option>УКВЗ</option><option>УЗТМ</option><option>ФАНПАС</option><option>СКТБ</option></select></div>
-        <div class="form-group" id="wrap-vhod"><label class="form-label">Входящий номер</label><input class="form-control" id="f-vhod"></div>
-        <div class="form-group"><label class="form-label">Результат дефектоскопии</label>
-          <select class="form-control" id="f-defekt"><option>Годна</option><option>В ремонт</option><option>Брак</option></select></div>
+          <select class="form-control" id="f-zavod">
+            <option value="">—</option>
+            <option>НКМЗ</option><option>ВМЗ</option><option>УКВЗ</option>
+            <option>УЗТМ</option><option>ФАНПАС</option><option>СКТБ</option>
+            <option>Бежицкий СЗ</option><option>Промлит</option>
+          </select></div>
+        <div class="form-group" id="wrap-vhod"><label class="form-label">Входящий номер</label>
+          <input class="form-control" id="f-vhod"></div>
+
+        <!-- ИЗМЕНЕНО: Вид ремонта вместо результата дефектоскопии -->
+        <div class="form-group"><label class="form-label">Вид ремонта</label>
+          <select class="form-control" id="f-remont">
+            <option>НОНК</option>
+            <option>СОНК</option>
+            <option>НОСК</option>
+            <option>СОСК</option>
+          </select></div>
       </div>
+
+      <!-- Толщина гребней / обода (только Приход) -->
+      <div id="wrap-tolkshina" style="display:none;">
+        <div class="form-row form-row-2" style="margin-top:14px;">
+          <div class="form-group"><label class="form-label">Толщина левого гребня (мм)</label>
+            <input class="form-control" id="f-tlev" type="number" step="0.1" placeholder="27.0"></div>
+          <div class="form-group"><label class="form-label">Толщина правого гребня (мм)</label>
+            <input class="form-control" id="f-tprav" type="number" step="0.1" placeholder="27.0"></div>
+        </div>
+      </div>
+
+      <!-- Освидетельствование (только Выход) -->
       <div id="wrap-osvid" style="display:none;">
-        <div class="form-group" style="max-width:320px;"><label class="form-label">Месяц/год освидетельствования</label><div id="osvid-wrap"></div></div>
+        <div class="form-group" style="max-width:320px;margin-top:14px;">
+          <label class="form-label">Месяц/год освидетельствования</label>
+          <div id="osvid-wrap"></div>
+        </div>
       </div>
-      <div class="form-group" style="margin-top:16px;"><label class="form-label">Примечание</label><input class="form-control" id="f-note"></div>
+
+      <div class="form-group" style="margin-top:16px;">
+        <label class="form-label">Примечание</label>
+        <input class="form-control" id="f-note"></div>
     </div>
     <div class="modal-footer" id="doc-footer"></div>
   </div>
 </div>
 {% endblock %}
+
 {% block scripts %}
 <script>
-const TAB_LABEL={kp_arrival:'Приход КП',kp_departure:'Выход КП',roller:'Роликовый участок'};
-let cur='kp_arrival', data={kp_arrival:[],kp_departure:[],roller:[]}, curDoc=null;
+const TAB_LABEL = {
+  kp_arrival:   'Приход КП',
+  kp_departure: 'Выход КП',
+  roller:       'Роликовый участок'
+};
+const REMONT_TYPES = ['НОНК', 'СОНК', 'НОСК', 'СОСК'];
 
-function statusBadge(s){return `<span class="badge ${s==='Проведён'?'badge-green':'badge-gray'}">${s==='Проведён'?'✓':'✎'} ${esc(s||'Черновик')}</span>`;}
-function defektBadge(s){const m={'Годна':'badge-green','В ремонт':'badge-amber','Брак':'badge-red'};return `<span class="badge ${m[s]||'badge-gray'}">${esc(s||'—')}</span>`;}
-function fmtMY(s){if(!s)return '—';const p=String(s).split('T')[0].split('-');return p.length>=2?`${p[1]}.${p[0]}`:s;}
+let cur = 'kp_arrival';
+let data = { kp_arrival: [], kp_departure: [], roller: [] };
+let curDoc = null;
 
-async function loadAll(){
-  for(const k of Object.keys(data)) data[k]=await fetch('/api/'+k).then(r=>r.json());
+// Бейдж вида ремонта (заменяет дефектоскопию)
+function remontBadge(s) {
+  const clr = { НОНК: 'badge-blue', СОНК: 'badge-amber', НОСК: 'badge-green', СОСК: 'badge-red' };
+  return `<span class="badge ${clr[s] || 'badge-gray'}">${esc(s || '—')}</span>`;
+}
+function statusBadge(s) {
+  return `<span class="badge ${s === 'Проведён' ? 'badge-green' : 'badge-gray'}">${s === 'Проведён' ? '✓' : '✎'} ${esc(s || 'Черновик')}</span>`;
+}
+function fmtMY(s) {
+  if (!s) return '—';
+  const p = String(s).split('T')[0].split('-');
+  return p.length >= 2 ? `${p[1]}.${p[0]}` : s;
+}
+
+async function loadAll() {
+  for (const k of Object.keys(data))
+    data[k] = await fetch('/api/' + k).then(r => r.json());
   render();
 }
-function switchTab(t){cur=t;document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.t===t));document.getElementById('search').value='';render();}
 
-function header(){
-  if(cur==='kp_departure') return '<tr><th>Номер КП</th><th>Тип</th><th>Завод</th><th>Освид.</th><th>Дефектоскопия</th><th>Статус</th></tr>';
-  if(cur==='roller') return '<tr><th>Номер КП</th><th>Тип</th><th>Завод</th><th>Дефектоскопия</th><th>Статус</th><th>Создан</th></tr>';
-  return '<tr><th>Номер КП</th><th>Тип</th><th>Год</th><th>Завод</th><th>Дефектоскопия</th><th>Статус</th></tr>';
+function switchTab(t) {
+  cur = t;
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.t === t));
+  document.getElementById('search').value = '';
+  render();
 }
-function render(list){
-  list=list||data[cur];
-  document.getElementById('thead').innerHTML=header();
-  document.getElementById('list-title').textContent=`${TAB_LABEL[cur]} · ${list.length}`;
-  const b=document.getElementById('body');
-  if(!list.length){b.innerHTML=`<tr class="row-empty"><td colspan="7">Документов нет</td></tr>`;return;}
-  b.innerHTML=list.map(d=>{
-    const base=`<td class="font-bold text-mono">${esc(d.num)}</td><td><span class="badge badge-blue">${esc(d.tip)}</span></td>`;
-    if(cur==='kp_departure') return `<tr class="clickable" onclick="openDoc(${d.id})">${base}<td>${esc(d.zavod)||'—'}</td><td class="text-mono">${fmtMY(d.mg_osvid)}</td><td>${defektBadge(d.defekt)}</td><td>${statusBadge(d.status)}</td></tr>`;
-    if(cur==='roller') return `<tr class="clickable" onclick="openDoc(${d.id})">${base}<td>${esc(d.zavod)||'—'}</td><td>${defektBadge(d.defekt)}</td><td>${statusBadge(d.status)}</td><td class="text-muted">${fmtDate(d.created_at)}</td></tr>`;
-    return `<tr class="clickable" onclick="openDoc(${d.id})">${base}<td>${esc(d.god)||'—'}</td><td>${esc(d.zavod)||'—'}</td><td>${defektBadge(d.defekt)}</td><td>${statusBadge(d.status)}</td></tr>`;
+
+function header() {
+  if (cur === 'kp_departure')
+    return '<tr><th>Номер КП</th><th>Тип</th><th>Завод</th><th>Освид.</th><th>Вид ремонта</th><th>Статус</th></tr>';
+  if (cur === 'roller')
+    return '<tr><th>Номер КП</th><th>Тип</th><th>Завод</th><th>Вид ремонта</th><th>Статус</th><th>Создан</th></tr>';
+  return '<tr><th>Номер КП</th><th>Тип</th><th>Год</th><th>Завод</th><th>Вид ремонта</th><th>Статус</th></tr>';
+}
+
+function render(list) {
+  list = list || data[cur];
+  document.getElementById('thead').innerHTML = header();
+  document.getElementById('list-title').textContent = `${TAB_LABEL[cur]} · ${list.length}`;
+  const b = document.getElementById('body');
+  if (!list.length) { b.innerHTML = `<tr class="row-empty"><td colspan="7">Документов нет</td></tr>`; return; }
+  b.innerHTML = list.map(d => {
+    const base = `<td class="font-bold text-mono">${esc(d.num)}</td><td><span class="badge badge-blue">${esc(d.tip)}</span></td>`;
+    const rb   = remontBadge(d.remont);
+    if (cur === 'kp_departure')
+      return `<tr class="clickable" onclick="openDoc(${d.id})">${base}<td>${esc(d.zavod) || '—'}</td><td class="text-mono">${fmtMY(d.mg_osvid)}</td><td>${rb}</td><td>${statusBadge(d.status)}</td></tr>`;
+    if (cur === 'roller')
+      return `<tr class="clickable" onclick="openDoc(${d.id})">${base}<td>${esc(d.zavod) || '—'}</td><td>${rb}</td><td>${statusBadge(d.status)}</td><td class="text-muted">${fmtDate(d.created_at)}</td></tr>`;
+    return `<tr class="clickable" onclick="openDoc(${d.id})">${base}<td>${esc(d.god) || '—'}</td><td>${esc(d.zavod) || '—'}</td><td>${rb}</td><td>${statusBadge(d.status)}</td></tr>`;
   }).join('');
 }
-wireSearch('search',()=>data[cur],render);
+wireSearch('search', () => data[cur], render);
 
-function setupModal(forDeparture){
-  document.getElementById('wrap-osvid').style.display=forDeparture?'block':'none';
-  document.getElementById('wrap-vhod').style.display=(cur==='kp_arrival')?'block':'none';
-  if(forDeparture)document.getElementById('osvid-wrap').innerHTML=monthYearSelect('os-m','os-y',curDoc?dateToMonthYear(curDoc.mg_osvid):{});
+function setupModal(forDeparture) {
+  document.getElementById('wrap-osvid').style.display    = forDeparture ? 'block' : 'none';
+  document.getElementById('wrap-vhod').style.display     = (cur === 'kp_arrival') ? 'block' : 'none';
+  document.getElementById('wrap-tolkshina').style.display = (cur === 'kp_arrival') ? 'block' : 'none';
+  if (forDeparture)
+    document.getElementById('osvid-wrap').innerHTML =
+      monthYearSelect('os-m', 'os-y', curDoc ? dateToMonthYear(curDoc.mg_osvid) : {});
 }
-function openCreate(){
-  curDoc=null;
-  document.getElementById('doc-title').textContent='Новый документ · '+TAB_LABEL[cur];
-  ['f-num','f-vhod','f-note'].forEach(id=>document.getElementById(id).value='');
-  fillYears('f-god','');
-  document.getElementById('f-tip').value='РУ1-950';document.getElementById('f-zavod').value='';document.getElementById('f-defekt').value='Годна';
-  setupModal(cur==='kp_departure');
-  renderFooter(false);openModal('m-doc');
+
+function openCreate() {
+  curDoc = null;
+  document.getElementById('doc-title').textContent = 'Новый документ · ' + TAB_LABEL[cur];
+  ['f-num', 'f-vhod', 'f-note', 'f-tlev', 'f-tprav'].forEach(id => document.getElementById(id).value = '');
+  fillYears('f-god', '');
+  document.getElementById('f-tip').value    = 'РУ1-950';
+  document.getElementById('f-zavod').value  = '';
+  document.getElementById('f-remont').value = 'НОНК';
+  setupModal(cur === 'kp_departure');
+  renderFooter(false);
+  openModal('m-doc');
 }
-function openDoc(id){
-  curDoc=data[cur].find(x=>x.id===id);
-  document.getElementById('doc-title').textContent=`КП ${curDoc.num} · ${TAB_LABEL[cur]}`;
-  document.getElementById('f-num').value=curDoc.num||'';
-  document.getElementById('f-tip').value=curDoc.tip||'РУ1-950';
-  fillYears('f-god',curDoc.god||'');
-  document.getElementById('f-zavod').value=curDoc.zavod||'';
-  document.getElementById('f-vhod').value=curDoc.vhod||'';
-  document.getElementById('f-defekt').value=curDoc.defekt||'Годна';
-  document.getElementById('f-note').value=curDoc.note||'';
-  setupModal(cur==='kp_departure');
-  renderFooter(curDoc.status==='Проведён');openModal('m-doc');
+
+function openDoc(id) {
+  curDoc = data[cur].find(x => x.id === id);
+  document.getElementById('doc-title').textContent = `КП ${curDoc.num} · ${TAB_LABEL[cur]}`;
+  document.getElementById('f-num').value    = curDoc.num    || '';
+  document.getElementById('f-tip').value    = curDoc.tip    || 'РУ1-950';
+  fillYears('f-god', curDoc.god || '');
+  document.getElementById('f-zavod').value  = curDoc.zavod  || '';
+  document.getElementById('f-vhod').value   = curDoc.vhod   || '';
+  document.getElementById('f-remont').value = curDoc.remont || 'НОНК';
+  document.getElementById('f-note').value   = curDoc.note   || '';
+  document.getElementById('f-tlev').value   = curDoc.tlev   || '';
+  document.getElementById('f-tprav').value  = curDoc.tprav  || '';
+  setupModal(cur === 'kp_departure');
+  renderFooter(curDoc.status === 'Проведён');
+  openModal('m-doc');
 }
-function renderFooter(locked){
-  const f=document.getElementById('doc-footer');
-  let h=`<button class="btn btn-secondary" onclick="closeModal('m-doc')">Закрыть</button>`;
-  if(locked){h+=`<span class="badge badge-green" style="align-self:center;">✓ Проведён</span>`;}
-  else{h+=`<button class="btn btn-secondary" onclick="save('Черновик')">💾 Записать</button><button class="btn btn-primary" onclick="save('Проведён')">➤ Провести</button>`;}
-  f.innerHTML=h;
+
+function renderFooter(locked) {
+  const f = document.getElementById('doc-footer');
+  let h = `<button class="btn btn-secondary" onclick="closeModal('m-doc')">Закрыть</button>`;
+  if (locked) {
+    h += `<span class="badge badge-green" style="align-self:center;">✓ Проведён</span>`;
+  } else {
+    h += `<button class="btn btn-secondary" onclick="save('Черновик')">💾 Записать</button>`;
+    h += `<button class="btn btn-primary"   onclick="save('Проведён')">➤ Провести</button>`;
+  }
+  f.innerHTML = h;
 }
-async function save(status){
-  const payload={
-    num:document.getElementById('f-num').value.trim(),
-    tip:document.getElementById('f-tip').value,
-    god:document.getElementById('f-god').value,
-    zavod:document.getElementById('f-zavod').value,
-    vhod:document.getElementById('f-vhod').value,
-    defekt:document.getElementById('f-defekt').value,
-    note:document.getElementById('f-note').value,
-    status:status,
+
+async function save(status) {
+  const payload = {
+    num:    document.getElementById('f-num').value.trim(),
+    tip:    document.getElementById('f-tip').value,
+    god:    document.getElementById('f-god').value,
+    zavod:  document.getElementById('f-zavod').value,
+    vhod:   document.getElementById('f-vhod').value,
+    remont: document.getElementById('f-remont').value,  // вид ремонта
+    tlev:   document.getElementById('f-tlev').value,
+    tprav:  document.getElementById('f-tprav').value,
+    note:   document.getElementById('f-note').value,
+    status,
   };
-  if(cur==='kp_departure'){
-    payload.mg_osvid=monthYearToDate(document.getElementById('os-m').value,document.getElementById('os-y').value);
+  if (cur === 'kp_departure') {
+    payload.mg_osvid = monthYearToDate(
+      document.getElementById('os-m').value,
+      document.getElementById('os-y').value
+    );
   }
-  if(!payload.num){toast('Укажите номер КП','err');return;}
+  if (!payload.num) { toast('Укажите номер КП', 'err'); return; }
+
   let r;
-  if(curDoc && curDoc.id){
-    r=await fetch('/api/'+cur+'/'+curDoc.id,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-  }else{
-    r=await fetch('/api/'+cur,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  if (curDoc && curDoc.id) {
+    r = await fetch('/api/' + cur + '/' + curDoc.id, {
+      method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } else {
+    r = await fetch('/api/' + cur, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
   }
-  const d=await r.json();
-  if(!d.ok){toast(d.message||'Ошибка сохранения','err');return;}
-  toast(status==='Проведён'?'Документ проведён':'Черновик записан');
-  closeModal('m-doc');loadAll();
+  const d = await r.json();
+  if (!d.ok) { toast(d.message || 'Ошибка сохранения', 'err'); return; }
+  toast(status === 'Проведён' ? 'Документ проведён' : 'Черновик записан');
+  closeModal('m-doc');
+  loadAll();
 }
+
 loadAll();
 </script>
 {% endblock %}
