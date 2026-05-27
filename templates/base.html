@@ -260,17 +260,31 @@ body.nav-open .scrim{display:block}
     <nav class="nav" id="nav">
       <div class="nav-sec">Обзор</div>
       <a class="nav-link" href="/dashboard"><span class="ic">▦</span><span class="nav-txt"> Главная</span></a>
-      {% if role in ['nachalnik', 'master', 'defektoskopist', 'admin'] %}
+
       <div class="nav-sec">Производство</div>
+
+      {# Вагоны — не для дефектоскописта #}
+      {% if role in ['nachalnik', 'master', 'admin'] %}
       <a class="nav-link" href="/wagons"><span class="ic">🚃</span><span class="nav-txt"> Вагоны</span></a>
-      <a class="nav-link" href="/opzs"><span class="ic">📋</span><span class="nav-txt"> ОПЗС <span class="nav-badge" id="nav-opzs-badge" style="display:none;"></span></a>
       {% endif %}
-      {% if role in ['nachalnik', 'defektoskopist', 'master_roller', 'admin'] %}
+
+      {# ОПЗС — Деф ВРЦ, все мастера, мастер роликовый, начальник #}
+      {% if role in ['nachalnik', 'admin', 'master', 'master_roller'] or
+           (role == 'defektoskopist' and uchastok in ['vrc_def','wagon_def']) %}
+      <a class="nav-link" href="/opzs"><span class="ic">📋</span><span class="nav-txt"> ОПЗС <span class="nav-badge" id="nav-opzs-badge" style="display:none;"></span></span></a>
+      {% endif %}
+
+      {# КП — Деф КТЦ (Приход/Выход) + Мастер роликовый (Роликовый) + Начальник #}
+      {% if role in ['nachalnik', 'admin', 'master_roller'] or
+           (role == 'defektoskopist' and uchastok == 'kolesny') %}
       <a class="nav-link" href="/kp"><span class="ic">⚙️</span><span class="nav-txt"> Колёсные пары</span></a>
       {% endif %}
-      {% if role in ['nachalnik', 'master', 'admin'] %}
+
+      {# Натурный лист — только Мастер тележечного + Начальник #}
+      {% if role in ['nachalnik', 'admin'] or (role == 'master' and uchastok == 'telega') %}
       <a class="nav-link" href="/nakatka"><span class="ic">📄</span><span class="nav-txt"> Натурный колёсный лист</span></a>
       {% endif %}
+
       <div class="nav-sec">Логистика</div>
       <a class="nav-link" href="/sklad"><span class="ic">📦</span><span class="nav-txt"> Мой склад</span></a>
       <a class="nav-link" href="/transfers"><span class="ic">🔁</span><span class="nav-txt"> Заявки на получение</span></a>
