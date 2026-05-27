@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Перемещения — АВРЗ{% endblock %}
+{% block crumb %}Логистика <span>/ Перемещения</span>{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div><div class="page-title">Заявки на <span>перемещение</span></div>
+  <div class="page-sub">Перемещение деталей между участками и складами</div></div>
+  <button class="btn btn-primary" onclick="openModal('m-add')">＋ Новая заявка</button>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">Заявки</div>
+    <div class="search-box"><span class="ic">🔍</span><input class="form-control" id="search" style="width:240px;" placeholder="Поиск по всем полям…"></div>
+  </div>
+  <div class="card-body" style="padding:0;">
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Откуда</th><th>Куда</th><th>Деталь</th><th>Кол-во</th><th>Статус</th><th>Создана</th><th></th></tr></thead>
+      <tbody id="body"><tr class="row-empty"><td colspan="7">Загрузка…</td></tr></tbody>
+    </table></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="m-add">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">Новая заявка на перемещение</div><button class="btn-close" onclick="closeModal('m-add')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:14px;"><label class="form-label">Получатель *</label>
+        <select class="form-control" id="t-to"></select></div>
+      <div class="form-row form-row-2">
+        <div class="form-group"><label class="form-label">Деталь *</label><input class="form-control" id="t-item"></div>
+        <div class="form-group"><label class="form-label">Количество *</label><input class="form-control" id="t-qty" type="number" value="1" min="1"></div>
+      </div>
+      <div class="form-group" style="margin-top:14px;"><label class="form-label">Примечание</label><input class="form-control" id="t-note"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('m-add')">Отмена</button>
+      <button class="btn btn-primary" onclick="add()">Создать заявку</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const ME="{{ username }}";
+let rows=[], users={};
+function statusBadge(s){const m={'Создана':'badge-amber','Принята':'badge-green','Отклонена':'badge-red'};return `<span class="badge ${m[s]||'badge-gray'}">${esc(s)}</span>`;}
+
+async function load(){
+  const meta=await fetch('/api/meta').then(r=>r.json());users=meta.users||{};
+  document.getElementById('t-to').innerHTML='<option value="">— выберите получателя —</option>'+
+    Object.keys(users).filter(u=>u!==ME).map(u=>`<option value="${u}">${esc(users[u].name)}</option>`).join('');
+  rows=await fetch('/api/transfers').then(r=>r.json());render(rows);
+  const qs=new URLSearchParams(location.search);
+  if(qs.get('item')){document.getElementById('t-item').value=qs.get('item');openModal('m-add');}
+}
+function render(list){
+  const b=document.getElementById('body');
+  if(!list.length){b.innerHTML='<tr class="row-empty"><td colspan="7"><span class="empty-hint"><span class="em">🔁</span>Заявок нет</span></td></tr>';return;}
+  b.innerHTML=list.map(t=>{
+    const incoming=(t.to_user===ME && t.status==='Создана');
+    const actions=incoming?`<div class="flex gap-2"><button class="btn btn-success btn-xs" onclick="act(${t.id},'accept')">✓ Принять</button><button class="btn btn-danger btn-xs" onclick="act(${t.id},'reject')">✕ Отклонить</button></div>`:'';
+    return `<tr>
+      <td>${esc(t.from_name)}</td>
+      <td>${esc(t.to_name)}</td>
+      <td class="font-bold">${esc(t.item)}</td>
+      <td class="text-mono">${esc(t.qty)}</td>
+      <td>${statusBadge(t.status)}</td>
+      <td class="text-muted">${fmtDate(t.created_at)}</td>
+      <td>${actions}</td>
+    </tr>`;
+  }).join('');
+}
+wireSearch('search',()=>rows,render);
+async function add(){
+  const to=document.getElementById('t-to').value, item=document.getElementById('t-item').value.trim();
+  if(!to){toast('Выберите получателя','err');return;}
+  if(!item){toast('Укажите деталь','err');return;}
+  await fetch('/api/transfers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    to_user:to,item,qty:document.getElementById('t-qty').value,note:document.getElementById('t-note').value})});
+  ['t-item','t-note'].forEach(id=>document.getElementById(id).value='');document.getElementById('t-qty').value='1';
+  toast('Заявка создана');closeModal('m-add');load();
+}
+async function act(id,action){
+  const t=rows.find(x=>x.id===id);
+  if(action==='accept'&&!confirm(`Принять «${t?t.item:''}» (${t?t.qty:''} шт)? Деталь будет списана у отправителя и зачислена на ваш склад.`))return;
+  const r=await fetch('/api/transfers/'+id,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action})});
+  const d=await r.json();
+  if(!d.ok){toast(d.error==='forbidden'?'Принять может только получатель':'Ошибка','err');return;}
+  if(action==='accept'){
+    const mv=d.transfer&&d.transfer.moved_qty;
+    toast('Заявка принята · склад обновлён'+(mv!=null?` (списано ${mv})`:''));
+  }else toast('Заявка отклонена');
+  load();
+}
+load();
+</script>
+{% endblock %}
