@@ -12,11 +12,18 @@
   </div></div>
 </div>
 
-{% if role in ['nachalnik','defektoskopist','admin'] %}
-<div class="tabs" id="tabs" style="margin-bottom:18px;max-width:560px;">
+{% if role in ['nachalnik','admin'] %}
+<div class="tabs" id="tabs" style="margin-bottom:18px;max-width:760px;">
   <button class="tab active" data-uch="avtoscepka" onclick="switchTab('avtoscepka')">🔧 Автосцепка <span class="count" id="c-avtoscepka">0</span></button>
-  <button class="tab" data-t="telega" onclick="switchTab('telega')">🏗 Тележечный <span class="count" id="c-telega">0</span></button>
+  <button class="tab" data-uch="telega" onclick="switchTab('telega')">🏗 Тележечный <span class="count" id="c-telega">0</span></button>
   <button class="tab" data-uch="akp" onclick="switchTab('akp')">🔩 АКП <span class="count" id="c-akp">0</span></button>
+  <button class="tab" data-uch="kuzov" onclick="switchTab('kuzov')">🏠 Кузов <span class="count" id="c-kuzov">0</span></button>
+  <button class="tab" data-uch="roller" onclick="switchTab('roller')">🔄 Роликовый <span class="count" id="c-roller">0</span></button>
+</div>
+{% elif role == 'defektoskopist' and uchastok in ['vrc_def','wagon_def'] %}
+<div class="tabs" id="tabs" style="margin-bottom:18px;max-width:420px;">
+  <button class="tab active" data-uch="avtoscepka" onclick="switchTab('avtoscepka')">🔧 Автосцепка <span class="count" id="c-avtoscepka">0</span></button>
+  <button class="tab" data-uch="telega" onclick="switchTab('telega')">🏗 Тележечный <span class="count" id="c-telega">0</span></button>
 </div>
 {% endif %}
 
@@ -244,7 +251,8 @@
 .chip{background:var(--surface);border:1px solid var(--border-2);color:var(--text-2);padding:7px 14px;border-radius:99px;font-size:12.5px;font-weight:700;cursor:pointer;transition:var(--t)}
 .chip:hover{border-color:var(--blue-200);color:var(--text)}
 .chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-/* print disabled */
+@media print{
+  .sidebar,.topbar,.filter-chips,.tabs,#doc-footer,.btn-close,.page-header button,.no-print{display:none!important}
   .main{margin-left:0!important}
   .modal-overlay{position:static!important;background:none!important;display:block!important;padding:0!important}
   .modal{box-shadow:none!important;max-width:100%!important}
