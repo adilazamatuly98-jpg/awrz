@@ -39,7 +39,6 @@ body{min-height:100vh;background:var(--bg);font-family:'Manrope',sans-serif;colo
 .du{display:flex;justify-content:space-between;align-items:center;padding:9px 11px;border-radius:var(--radius-sm);cursor:pointer;border:1px solid transparent;transition:.13s;margin-bottom:3px}
 .du:hover{background:#f4f7fc;border-color:var(--border);transform:translateX(2px)}
 .du b{font-size:13px;font-weight:600}
-.du-group-label{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-3);padding:6px 0 4px;}
 .du span{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-3)}
 </style>
 </head>
@@ -60,20 +59,19 @@ body{min-height:100vh;background:var(--bg);font-family:'Manrope',sans-serif;colo
     <div class="err" id="err"></div>
     <div class="demo">
       <div class="demo-lbl">Быстрый вход (демо)</div>
-      <div class="du-group-label">Управление</div>
       <div class="du" onclick="fill('admin')"><b>Администратор (Бюро описи)</b><span>admin / 1</span></div>
-      <div class="du" onclick="fill('nachalnik')"><b>Начальник цеха</b><span>nachalnik / 1</span></div>
 
-      <div class="du-group-label" style="margin-top:10px;">ВРЦ — Вагоноремонтный цех</div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-3);padding:8px 0 4px;">ВРЦ — Вагоноремонтный цех</div>
+      <div class="du" onclick="fill('nachalnik')"><b>Начальник ВРЦ</b><span>nachalnik / 1</span></div>
       <div class="du" onclick="fill('master_auto')"><b>Мастер · Автосцепка</b><span>master_auto / 1</span></div>
       <div class="du" onclick="fill('master_akp')"><b>Мастер · АКП</b><span>master_akp / 1</span></div>
       <div class="du" onclick="fill('master_kuzov')"><b>Мастер · Кузов</b><span>master_kuzov / 1</span></div>
-      <div class="du" onclick="fill('defekt_vrc')"><b>Дефектоскопист · ВРЦ</b><span>defekt_vrc / 1</span></div>
 
-      <div class="du-group-label" style="margin-top:10px;">КТЦ — Колёсно-тележечный цех</div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-3);padding:8px 0 4px;">КТЦ — Колёсно-тележечный цех</div>
+      <div class="du" onclick="fill('nachalnik_ktc')"><b>Начальник КТЦ</b><span>nachalnik_ktc / 1</span></div>
       <div class="du" onclick="fill('master_telega')"><b>Мастер · Тележечный</b><span>master_telega / 1</span></div>
       <div class="du" onclick="fill('master_roller')"><b>Мастер · Роликовый</b><span>master_roller / 1</span></div>
-      <div class="du" onclick="fill('defekt_ktc')"><b>Дефектоскопист · КТЦ</b><span>defekt_ktc / 1</span></div>
+      <div class="du" onclick="fill('defekt1')"><b>Дефектоскопист</b><span>defekt1 / 1</span></div>
     </div>
   </div>
 </div>
